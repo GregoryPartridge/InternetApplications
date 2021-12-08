@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Movies Database</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.23.0/axios.min.js"></script>
+    <style>
+      table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        table {
+            text-align: center;
+            width: 50%;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <button v-on:click="createDatabase">Create Database</button>
+      <p>Movie Title: <input v-model="title"> Release Year: <input v-model="year"> Movie Rating: <input v-model="rating"> <button v-on:click="getMovies">Query Database</button></p>
+      <button v-on:click="deleteDatabase">Delete Database</button>
+      <div v-if="!isLoading">
+        <table>
+          <thead>
+              <tr>
+                  <th>Title</th>
+                  <th>Release Date</th>
+                  <th>Rating</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr v-for="row in summary">
+                  <td>{{row.title}}</td>
+                  <td>{{row.year}}</td>
+                  <td>{{row.rating}}</td>
+              </tr>
+          </tbody>
+      </table>
+      </div>
+    </div>
+
+    <script>
+      var app = new Vue({
+        el: "#app",
+        data: {
+          title: "",
+          year: "",
+          rating: "",
+          summary: [],
+          isLoading: true,
+        },
+        methods: {
+            createDatabase: createDatabase,
+            getMovies: getMovies,
+            deleteDatabase: deleteDatabase
+        }
+      })
+      
+      function createDatabase()
+      {
+        fetch("/create",{method: 'POST'})
+      }
+
+      function deleteDatabase()
+      {
+        fetch("/delete",{method: 'DELETE'})
+      }
+
+      function getMovies()
+      {
+        let prom = fetch("/movies?title=" + this.title + "&year=" + this.year + "&rating=" + this.rating);
+        prom.then(response => response.json())
+            .then(response =>{
+                this.summary = response
+                console.log(response)
+                this.isLoading = false
+            })
+      }
+      ;
+    </script>
+  </body>
+</html>
